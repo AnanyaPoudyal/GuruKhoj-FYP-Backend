@@ -1,7 +1,11 @@
 const { GKUser } = require('../models/gkUser');
 const { GKRole } = require('../models/gkRole');
+const bcrypt = require('bcrypt');
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+
+const jwt_secret = "1234567890";
 
 router.get(`/`, async (req, res) =>{
     const gkUserList = await GKUser.find();
@@ -74,5 +78,35 @@ router.delete('/:id', async (req, res)=>{
         res.status(500).send(error.message);
     }
 });
+
+router.post('/login', async (req,res) => {
+    const {email, password} = req.body;
+    const user = await GKUser.findOne({email: email});
+    
+    if(!user) {
+        return res.status(400).send('The user not found');
+    }
+
+    if(bcrypt.compare(password, user.password)) {
+        const token = jwt.sign(
+            {
+                email: user.email
+            },
+            jwt_secret,
+            // {expiresIn : '1d'}
+        );
+        if(res.status(201)){
+            res.status(200).send({status: "Ok", data:token}) 
+        }else{
+            res.status(400).send(err);
+        }
+        
+    } else {
+       res.status(400).send('password is wrong!');
+       console.log("NOT making a token");
+    }
+
+    
+})
 
 module.exports = router;
