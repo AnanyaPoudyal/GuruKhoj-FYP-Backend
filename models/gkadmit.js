@@ -18,4 +18,12 @@ const gkAdmitSchema = new mongoose.Schema({
     }
 })
 
+gkAdmitSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+gkAdmitSchema.set('toJSON', {
+    virtuals: true
+});
+
 exports.GKAdmit = mongoose.model('GKAdmit', gkAdmitSchema);

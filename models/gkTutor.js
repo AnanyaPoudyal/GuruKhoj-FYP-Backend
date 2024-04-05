@@ -23,7 +23,19 @@ const gkTutorSchema = new mongoose.Schema({
         type: Date,
         default: Date.now, 
      },
+     gkuser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'GKUser',
+        required: true
+    }
 })
 
+gkTutorSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+ });
+ 
+ gkTutorSchema.set('toJSON', {
+    virtuals: true
+ });
 
 exports.GKTutor = mongoose.model('GKTutor', gkTutorSchema);

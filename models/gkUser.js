@@ -38,4 +38,13 @@ const gkUserSchema = new mongoose.Schema({
 });
 
 
+gkUserSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+ });
+ 
+ gkUserSchema.set('toJSON', {
+    virtuals: true
+ });
+
+
 exports.GKUser = mongoose.model('GKUser', gkUserSchema);

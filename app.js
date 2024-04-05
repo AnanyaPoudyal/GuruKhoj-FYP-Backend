@@ -4,6 +4,8 @@ require('dotenv/config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handlers');
 
 const api = process.env.API_URL;
 const gkrolesRouter = require('./routers/gkroles');
@@ -18,6 +20,7 @@ const gkAdmitRouter = require('./routers/gkadmits');
 app.use(express.json());
 app.use(morgan('tiny'));
 app.options('*', cors());
+app.use(authJwt());
 
 //Routers
 app.use(`${api}/gkroles`, gkrolesRouter);
@@ -26,6 +29,7 @@ app.use(`${api}/gkusers`, gkUserRouter);
 app.use(`${api}/gktutors`, gkTutorRouter);
 app.use(`${api}/gkadmits`, gkAdmitRouter)
 
+app.use(errorHandler);
 
 
 mongoose.connect(process.env.CONNECTION_STRING, {

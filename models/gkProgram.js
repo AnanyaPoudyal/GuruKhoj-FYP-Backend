@@ -33,7 +33,19 @@ const gkProgramSchema = mongoose.Schema({
      gkprogramHomeTution: {
         type: Boolean,
         default: false,
+    },
+    gkuser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GKUser",
+      required: true
     }
 })
 
+gkProgramSchema.virtual('id').get(function () {
+   return this._id.toHexString();
+});
+
+gkProgramSchema.set('toJSON', {
+   virtuals: true
+});
 exports.GKProgram = mongoose.model('GKProgram', gkProgramSchema);
