@@ -5,6 +5,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { reset } = require('nodemon');
+const authJwt = require('../helpers/jwt')
 
 router.get(`/`, async (req, res) =>{
     const gkUserList = await GKUser.find().populate('gkrole').select('-password');
@@ -139,7 +140,7 @@ router.post('/login', async (req, res) => {
                 }
             )
 
-            return res.status(200).send({ user: { email: user.email, gkrole: user.gkrole }, token });
+            return res.status(200).send({ user: { email: user.email, gkrole: user.gkrole, userID: user._id }, token });
         } else {
             return res.status(400).send('The password is wrong!');
         }
@@ -172,6 +173,29 @@ router.post(`/register`,  async (req, res) =>{
     res.send(gkUser);
  
  });
+
+ //Profile
+ router.get('/profile/:id', authJwt(), async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Ensure the user making the request is the same as the requested user or isAdmin
+        if (req.GKUser.userID !== userId && !req.GKUser.isAdmin) {
+            return res.status(403).json({ success: false, message: 'You are not authorized to access this resource' });
+        }
+
+        const gkUser = await GKUser.findById(userId).select('-password').populate('gkrole');
+
+        if (!gkUser) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.json({ success: true, data: gkUser });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
 
 
 module.exports = router;
