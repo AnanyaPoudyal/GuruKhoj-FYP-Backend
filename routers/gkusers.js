@@ -174,28 +174,29 @@ router.post(`/register`,  async (req, res) =>{
  
  });
 
- //Profile
- router.get('/profile/:id', authJwt(), async (req, res) => {
+ //Search
+ router.get('/search', async (req, res) => {
     try {
-        const userId = req.params.userId;
+        // Log the query parameters to check if 'first_name' is received
+        console.log('Query parameters:', req.query);
 
-        // Ensure the user making the request is the same as the requested user or isAdmin
-        if (req.GKUser.userID !== userId && !req.GKUser.isAdmin) {
-            return res.status(403).json({ success: false, message: 'You are not authorized to access this resource' });
-        }
+        // Extract the first name from the query parameters
+        const { first_name } = req.query;
+        console.log('Searching for users with first name:', first_name);
 
-        const gkUser = await GKUser.findById(userId).select('-password').populate('gkrole');
+        // Perform the search based on the first name
+        const users = await GKUser.find({
+            first_name: { $regex: new RegExp(first_name, 'i') } // Case-insensitive search
+        });
 
-        if (!gkUser) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        res.json({ success: true, data: gkUser });
+        res.json(users);
     } catch (error) {
-        console.error('Error fetching user profile:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        console.error('Error searching for users:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 
 
 module.exports = router;

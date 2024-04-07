@@ -33,9 +33,7 @@ router.get(`/`, async (req, res) =>{
 })
 
 router.post(`/`,  async (req, res) =>{
-    //const gkuser =  await GKUser.findById(req.body.gkuser);
-    // Retrieve the user ID from AsyncStorage
-    const userId = await getUserIdFromStorage();
+    const gkuser =  await GKUser.findById(req.body.gkuser);
     if(!GKUser) return res.status(400).send("Invlaid Tutor");
     let gkProgram = new GKProgram({
         gkprogramArea: req.body.gkprogramArea,
@@ -46,7 +44,7 @@ router.post(`/`,  async (req, res) =>{
         gkprogramPrice: req.body.gkprogramPrice,
         gkprogramStudentCapacity: req.body.gkprogramStudentCapacity,
         gkprogramHomeTution: req.body.gkprogramHomeTution,
-        gkuser: userId
+        gkuser: gkuser
     })
 
     gkProgram = await gkProgram.save();
