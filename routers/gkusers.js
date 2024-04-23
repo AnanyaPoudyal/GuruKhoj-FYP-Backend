@@ -4,8 +4,32 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { reset } = require('nodemon');
-const authJwt = require('../helpers/jwt')
+const multer = require('multer');
+
+const FILE_TYPE_MAP = {
+    'image/png': 'png',
+    'image/jpeg': 'jpeg',
+    'image/jpg': 'jpg',
+};
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const isValid = FILE_TYPE_MAP[file.mimetype];
+        let uploadError = new Error('invalid image type');
+
+        if (isValid) {
+            uploadError = null;
+        }
+        cb(uploadError, 'public/uploads');
+    },
+    filename: function (req, file, cb) {
+        const fileName = file.originalname.split(' ').join('-');
+        const extension = FILE_TYPE_MAP[file.mimetype];
+        cb(null, `${fileName}-${Date.now()}.${extension}`);
+    },
+});
+
+const uploadOpt = multer({ storage: storage})
 
 router.get(`/`, async (req, res) =>{
     const gkUserList = await GKUser.find().populate('gkrole').select('-password');
@@ -132,7 +156,6 @@ router.post('/login', async (req, res) => {
             const token = jwt.sign(
                 {
                     userID: user.id,
-                    // isAdmin: user.isAdmin
                 },
                 secret,
                 {
@@ -149,30 +172,44 @@ router.post('/login', async (req, res) => {
         return res.status(500).send('An error occurred during login');
     }
 });
-
-router.post(`/register`,  async (req, res) =>{
+//Register
+router.post(`/register`, uploadOpt.single('photo'), async (req, res) => {
+    
     const gkrole = await GKRole.findById(req.body.gkrole);
-    if(!gkrole) return res.status(400).send("Invlaid Role");
+    if (!gkrole) return res.status(400).send("Invalid Role");
     
-    let gkUser = new GKUser({
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        isAdmin: req.body.isAdmin,
-        address: req.body.address,
-        contact_number: req.body.contact_number,
-        email: req.body.email,
-        password: bcrypt.hashSync(req.body.password),
-        gkrole: req.body.gkrole
-    })
+    const file = req.file;
+    if (!file) return res.status(400).send('No image in the request');
 
-    gkUser = await gkUser.save();
+    const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
 
-    if(!gkUser)
-    return res.status(404).send('The User cannot be created')
-    
-    res.send(gkUser);
- 
- });
+    try {
+        let gkUser = new GKUser({
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            isAdmin: req.body.isAdmin,
+            address: req.body.address,
+            contact_number: req.body.contact_number,
+            email: req.body.email,
+            password: bcrypt.hashSync(req.body.password),
+            photo: `${basePath}${fileName}`,
+            gkrole: req.body.gkrole
+        });
+
+        gkUser = await gkUser.save();
+
+        if (!gkUser) {
+            return res.status(404).send('The User cannot be created');
+        }
+
+        res.send(gkUser);
+    } catch (error) {
+        console.error('Error saving user:', error);
+        res.status(500).send('An error occurred while creating the user');
+    }
+});
+
 
  //Search
  router.get('/search', async (req, res) => {

@@ -7,13 +7,15 @@ const cors = require('cors');
 const authJwt = require('./helpers/jwt');
 const errorHandler = require('./helpers/error-handlers');
 
+app.use('/public', express.static('public'));
+
 const api = process.env.API_URL;
 const gkrolesRouter = require('./routers/gkroles');
 const gkProgramRouter =  require('./routers/gkprograms');
 const gkUserRouter = require('./routers/gkusers');
 const gkTutorRouter = require('./routers/gktutors');
 const gkAdmitRouter = require('./routers/gkadmits');
-
+const gkFeedbackRouter = require('./routers/gkfeedbacks')
 
 
 //Middleware
@@ -27,7 +29,8 @@ app.use(`${api}/gkroles`, gkrolesRouter);
 app.use(`${api}/gkprograms`, gkProgramRouter);
 app.use(`${api}/gkusers`, gkUserRouter);
 app.use(`${api}/gktutors`, gkTutorRouter);
-app.use(`${api}/gkadmits`, gkAdmitRouter)
+app.use(`${api}/gkadmits`, gkAdmitRouter);
+app.use(`${api}/gkfeedbacks`, gkFeedbackRouter);
 
 app.use(errorHandler);
 

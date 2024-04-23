@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { required } = require('nodemon/lib/config');
 
 const gkUserSchema = new mongoose.Schema({
     first_name: {
@@ -29,6 +28,10 @@ const gkUserSchema = new mongoose.Schema({
     password: {
         type: String, 
         required: true,
+    },
+    photo: {
+        type: String,
+        default: ''
     },
     gkrole: {
         type: mongoose.Schema.Types.ObjectId,

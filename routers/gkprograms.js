@@ -126,6 +126,41 @@ router.get('/get/homeTution', async (req, res) =>{
 //     }
 // })
 
+// Get list of program areas
+router.get('/areas', async (req, res) => {
+    try {
+        const areas = await GKProgram.distinct('gkprogramArea');
+
+        if (!areas || areas.length === 0) {
+            return res.status(404).json({ success: false, message: 'No program areas found' });
+        }
+
+        res.json({ success: true, areas });
+    } catch (error) {
+        console.error("Error getting program areas:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get programs by gkProgramArea
+router.get('/areas/:area/programs', async (req, res) => {
+    try {
+        const area = req.params.area;
+        const programs = await GKProgram.find({ gkprogramArea: area });
+
+        if (!programs || programs.length === 0) {
+            return res.status(404).json({ success: false, message: 'No programs found for the specified area' });
+        }
+
+        res.json({ success: true, programs });
+    } catch (error) {
+        console.error("Error getting programs by area:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
+
 router.delete('/:id', async (req, res)=>{
     try {
         const program = await GKProgram.findByIdAndDelete(req.params.id);
