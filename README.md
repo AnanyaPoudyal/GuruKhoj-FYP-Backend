@@ -35,3 +35,5 @@ A journey towards academic excellence and personal growth!
 
 These dependencies are essential for building the backend of the GuruKhoj app, enabling features such as authentication, database interaction, file uploads, logging, and more.
 
+npm start is used to run the backend.
+
