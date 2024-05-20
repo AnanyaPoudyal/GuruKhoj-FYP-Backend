@@ -11,7 +11,8 @@ function authJwt() {
         {url: '/api/v1/gkprograms', methods: ['GET', 'OPTIONS']},
 
             `${api}/gkusers/login`,
-            `${api}/gkusers/register`
+            `${api}/gkusers/register`,
+            `${api}/gktutors`
         ]
     })
 }
