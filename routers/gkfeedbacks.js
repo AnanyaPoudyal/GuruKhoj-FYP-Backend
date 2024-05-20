@@ -57,7 +57,17 @@ router.delete('/:id', async (req, res)=>{
     }
 });
 
-
+// Get feedbacks for a specific user
+router.get('/user/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const feedbacks = await GKFeedback.find({ gkuser: userId });
+        res.json({ success: true, data: feedbacks });
+    } catch (error) {
+        console.error('Error fetching feedbacks:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
 
 module.exports = router;
 

@@ -8,6 +8,9 @@ const authJwt = require('./helpers/jwt');
 const errorHandler = require('./helpers/error-handlers');
 
 app.use('/public', express.static('public'));
+app.use(cors({
+    origin: 'http://localhost:3001'
+}));
 
 const api = process.env.API_URL;
 const gkrolesRouter = require('./routers/gkroles');
