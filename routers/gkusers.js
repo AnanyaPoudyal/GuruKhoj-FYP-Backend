@@ -177,6 +177,9 @@ router.post(`/register`, uploadOpt.single('photo'), async (req, res) => {
     
     const gkrole = await GKRole.findById(req.body.gkrole);
     if (!gkrole) return res.status(400).send("Invalid Role");
+
+    const existingUser = await GKUser.findOne({ email: req.body.email.toLowerCase() });
+    if (existingUser) return res.status(400).send('User with the given email already exists');
     
     const file = req.file;
     if (!file) return res.status(400).send('No image in the request');
@@ -191,7 +194,7 @@ router.post(`/register`, uploadOpt.single('photo'), async (req, res) => {
             isAdmin: req.body.isAdmin,
             address: req.body.address,
             contact_number: req.body.contact_number,
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
             password: bcrypt.hashSync(req.body.password),
             photo: `${basePath}${fileName}`,
             gkrole: req.body.gkrole
